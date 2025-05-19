@@ -1,8 +1,7 @@
 package main
 
-deny[msg] {
-  r := input.resource_changes[_]
-  r.type == "aws_s3_bucket"
-  r.change.after.acl == "public-read"
-  msg := "S3 bucket is public!"
+deny[msg] if {
+  input.resource.type == "aws_s3_bucket"
+  input.resource.name == "public-bucket"
+  msg := "Public S3 buckets are not allowed"
 }
