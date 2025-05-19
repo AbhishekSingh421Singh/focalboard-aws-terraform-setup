@@ -21,6 +21,15 @@ resource "aws_subnet" "public" {
     Name = "Public-Subnet"
   }
 }
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1b"
+  tags = {
+    Name = "Public-Subnet-B"
+  }
+}
 # Internet Gateway
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
@@ -37,6 +46,10 @@ resource "aws_route_table" "public" {
 
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.public_b.id
   route_table_id = aws_route_table.public.id
 }
 
@@ -71,7 +84,7 @@ resource "aws_lb"  "app_lb_open" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.instance_sg.id]
-  subnets            = [aws_subnet.public.id]
+  subnets            = [aws_subnet.public.id, aws_subnet.public_b.id]
 }
 
 # ALB Target Groups
